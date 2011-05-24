@@ -1,0 +1,64 @@
+<html>
+<head>
+	<script src="https://github.com/dmitry-dedukhin/jsLoader/raw/master/jsLoader.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		jsLoader.map = { // map alias to real path, domready is a special alias - don't use it
+			test1: 'test1.js',
+			test2: 'test2.js',
+			test3: 'test3.js'
+		};
+		function log(msg) {
+			var format = function(num, precise) {
+				precise = precise || 2;
+				num = num + '';
+				for(var i=num.length; i<precise; i++) {
+					num = '0' + num;
+				}
+				return num;
+			};
+			var d = new Date();
+			try {
+				document.getElementById('log').value += '[' + format(d.getHours()) + ':' + format(d.getMinutes()) + ':' + format(d.getSeconds()) + '.' + format(d.getMilliseconds(), 3) + '] ' + msg + '\n';
+			} catch(e) {};
+		}
+	</script>
+</head>
+<body>
+	<textarea id="log" rows=20 cols=100></textarea>
+	<button id="clickme">Click me!</button>
+	<script type="text/javascript">
+		document.getElementById('log').value = ''; // clear log
+		/*
+		jsLoader.require('test1', 'test3', function() {
+			log('EXECUTED: inline script waiting for test1 && test3');
+		});
+		*/
+		jsLoader.require('test1', 'test2', function() {
+			log('EXECUTED: inline script waiting for test1 && test2');
+		});
+		jsLoader.require('test1', function() {
+			log('EXECUTED: inline script waiting for test1');
+		});
+		jsLoader.require('test2', function() {
+			log('EXECUTED: inline script waiting for test2');
+		});
+		jsLoader.require('domready', 'test2', function() {
+			log('EXECUTED: inline script waiting for domready && test2');
+		});
+		jsLoader.domready(function() { // or jsLoader.require('domready', function() {
+			log('DOM ready');
+		});
+		window.onload = function() {
+			log('Window onload');
+		};
+		//jsLoader.load(['test3']); // can be used to preload scripts, has only one argument - array of aliases
+		document.getElementById('clickme').onclick = function() {
+			jsLoader.require('test3', function() {
+				log('EXECUTED: inline script waiting for test3');
+			});
+		};
+		
+	</script>
+	<img width="300" height="200" src="http://ie.microsoft.com/testdrive/HTML5/DOMContentLoaded/whidbey.jpg" />
+</body>
+</html>
